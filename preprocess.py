@@ -35,7 +35,6 @@ def get_data(filename = 'jsonoutput.csv'):
         labels_list.append(labels)
 
     labels_list = list(map(round,labels_list))
-    # print(inputs_list[:10])
     print(labels_list[:10])
 
     # Use sklearn to do train and test split 0f 0.25 | 0.75
