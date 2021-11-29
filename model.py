@@ -75,5 +75,16 @@ def main():
 
     plt.show()
 
+    plt.clf()   # clear figure
+
+    plt.plot(epochs, acc, 'bo', label='Training acc')
+    plt.plot(epochs, val_acc, 'b', label='Validation acc')
+    plt.title('Training and validation accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.show()
+
 if __name__ == '__main__':
     main()
