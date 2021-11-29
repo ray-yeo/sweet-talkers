@@ -10,8 +10,8 @@ with open('data_request_fall_2021_raymond_geireann.json') as json_file:
     jsondata = json.load(json_file)
 
 print("json file read successfully")
- 
-data_file = open('jsonoutput.csv', 'w', newline='')
+
+data_file = open('jsonoutput.csv', 'w', newline='', encoding = 'utf-16')
 csv_writer = csv.writer(data_file)
  
 count = 0
