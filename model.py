@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 from preprocess import get_data
 
 
