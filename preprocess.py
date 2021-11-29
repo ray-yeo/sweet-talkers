@@ -33,6 +33,10 @@ def get_data(filename = 'jsonoutput.csv'):
     # Use sklearn to do train and test split 0f 0.25 | 0.75
     X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(inputs_list, labels_list, test_size=0.25, random_state=0)
 
+
     print('Train size: ', len(X_train))
     print('Test size: ', len(X_test))
     print('Total:', len(X_train) + len(X_test))
+
+    return X_train, X_test, y_train, y_test
+
