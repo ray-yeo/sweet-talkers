@@ -80,5 +80,5 @@ def get_data(filename = 'jsonoutput.csv'):
     # print('Test size: ', len(test_inputs))
     # print('Total:', len(train_inputs) + len(test_inputs))
 
-    return train_inputs, test_inputs, train_labels, test_labels
+    return train_padded, test_padded, train_labels, test_labels
 
