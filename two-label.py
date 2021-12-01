@@ -9,8 +9,6 @@ print("TensorFlow Version: ", tf.__version__)
 from preprocess import get_data
 
 
-
-
 def train():
     pass
 

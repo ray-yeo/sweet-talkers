@@ -4,13 +4,8 @@ import tensorflow as tf
 import tensorflow_hub as hub
 
 import matplotlib.pyplot as plt
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from nltk.corpus import stopwords
+
 from preprocess import get_data
-
-
-
 
 def train():
     pass
@@ -21,10 +16,10 @@ def test():
 
 
 def main():
-    X_train, X_test, y_train, y_test = get_data("jsonoutput.csv")
+    inputs_train, inputs_test, labels_train, labels_test = get_data("jsonoutput.csv")
     model = "https://tfhub.dev/google/nnlm-en-dim50/2"
     hub_layer = hub.KerasLayer(model, input_shape=[], dtype=tf.string, trainable=True)
-    hub_layer(X_train[:3])
+    hub_layer(inputs_train[:3])
 
     model = tf.keras.Sequential()
     model.add(hub_layer)
@@ -37,20 +32,20 @@ def main():
               loss=tf.losses.BinaryCrossentropy(from_logits=True),
               metrics=[tf.metrics.BinaryAccuracy(threshold=0.0, name='accuracy')])
 
-    x_val = X_train[:300]
-    partial_x_train = X_train[300:]
+    inputs_val = inputs_train[:300]
+    partial_inputs_train = inputs_train[300:]
 
-    y_val = y_train[:300]
-    partial_y_train = y_train[300:]
+    labels_val = labels_train[:300]
+    partial_labels_train = labels_train[300:]
 
-    history = model.fit(partial_x_train,
-                    partial_y_train,
+    history = model.fit(partial_inputs_train,
+                    partial_labels_train,
                     epochs=40,
                     batch_size=512,
-                    validation_data=(x_val, y_val),
+                    validation_data=(inputs_val, labels_val),
                     verbose=1)
 
-    results = model.evaluate(X_test, y_test)
+    results = model.evaluate(inputs_test, labels_test)
 
     print(results)
 
