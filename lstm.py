@@ -7,6 +7,14 @@ import matplotlib.pyplot as plt
 
 from preprocess import get_data
 
+vocab_size = 1000
+embedding_dim = 64
+max_length = 437
+trunc_type = 'post'
+padding_type = 'post'
+oov_tok = '<OOV>'
+training_portion = .8
+
 def train():
     pass
 
@@ -16,71 +24,24 @@ def test():
 
 
 def main():
-    inputs_train, inputs_test, labels_train, labels_test = get_data("jsonoutput.csv")
-    model = "https://tfhub.dev/google/nnlm-en-dim50/2"
-    hub_layer = hub.KerasLayer(model, input_shape=[], dtype=tf.string, trainable=True)
-    hub_layer(inputs_train[:3])
-
-    model = tf.keras.Sequential()
-    model.add(hub_layer)
-    model.add(tf.keras.layers.Dense(16, activation='relu'))
-    model.add(tf.keras.layers.Dense(1))
-
+    train_inputs, test_inputs, train_labels, test_labels = get_data("jsonoutput.csv")
+    
+    model = tf.keras.Sequential([
+        # Add an Embedding layer expecting input vocab of size 5000, and output embedding di
+        tf.keras.layers.Embedding(vocab_size, embedding_dim),
+        tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(embedding_dim)),
+        # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
+        # use ReLU in place of tanh function since they are very good alternatives of each o
+        tf.keras.layers.Dense(embedding_dim, activation='relu'),
+        # Add a Dense layer with 6 units and softmax activation.
+        # When we have multiple outputs, softmax convert outputs layers into a probability d
+        tf.keras.layers.Dense(4, activation='softmax')
+    ])
     model.summary()
 
-    model.compile(optimizer='adam',
-              loss=tf.losses.BinaryCrossentropy(from_logits=True),
-              metrics=[tf.metrics.BinaryAccuracy(threshold=0.0, name='accuracy')])
-
-    inputs_val = inputs_train[:300]
-    partial_inputs_train = inputs_train[300:]
-
-    labels_val = labels_train[:300]
-    partial_labels_train = labels_train[300:]
-
-    history = model.fit(partial_inputs_train,
-                    partial_labels_train,
-                    epochs=40,
-                    batch_size=512,
-                    validation_data=(inputs_val, labels_val),
-                    verbose=1)
-
-    results = model.evaluate(inputs_test, labels_test)
-
-    print(results)
-
-
-    history_dict = history.history
-    history_dict.keys()
-
-    acc = history_dict['accuracy']
-    val_acc = history_dict['val_accuracy']
-    loss = history_dict['loss']
-    val_loss = history_dict['val_loss']
-
-    epochs = range(1, len(acc) + 1)
-
-    # "bo" is for "blue dot"
-    plt.plot(epochs, loss, 'bo', label='Training loss')
-    # b is for "solid blue line"
-    plt.plot(epochs, val_loss, 'b', label='Validation loss')
-    plt.title('Training and validation loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-
-    plt.show()
-
-    plt.clf()   # clear figure
-
-    plt.plot(epochs, acc, 'bo', label='Training acc')
-    plt.plot(epochs, val_acc, 'b', label='Validation acc')
-    plt.title('Training and validation accuracy')
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
-    plt.legend()
-
-    plt.show()
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    num_epochs = 10
+    history = model.fit(train_inputs, train_labels, epochs=num_epochs, validation_data=(test_inputs, test_labels), verbose=2)
 
 if __name__ == '__main__':
     main()

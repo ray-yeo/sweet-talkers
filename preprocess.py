@@ -11,7 +11,7 @@ STOPWORDS = set(stopwords.words('english'))
 
 vocab_size = 1000
 embedding_dim = 64
-max_length = 200
+max_length = 437
 trunc_type = 'post'
 padding_type = 'post'
 oov_tok = '<OOV>'
@@ -20,11 +20,8 @@ training_portion = .8
 """
 split csv file into inputs_list and labels_list
 """
-def round(x):
-    if (int(float(x)) >= 4):
-        return 1
-    else:
-        return 0
+def roundToNearestInt(x):
+    return round(float(x))
 
 def get_data(filename = 'jsonoutput.csv'):
     # open file and read in rows
@@ -44,6 +41,8 @@ def get_data(filename = 'jsonoutput.csv'):
     for row in rows:
         inputs = row[5]
         labels = row[4]
+        if roundToNearestInt(labels) == 0:
+            continue
         for word in STOPWORDS:
             token = ' ' + word + ' '
             inputs = inputs.replace(token, ' ')
@@ -52,25 +51,34 @@ def get_data(filename = 'jsonoutput.csv'):
         labels_list.append(labels)
 
     
-    labels_list = list(map(round,labels_list))
+    labels_list = list(map(roundToNearestInt,labels_list))
 
     # Use sklearn to do train and test split 0f 0.25 | 0.75
-    inputs_train, inputs_test, labels_train, labels_test = sklearn.model_selection.train_test_split(inputs_list, labels_list, test_size=0.25, random_state=0)
+    train_inputs, test_inputs, train_labels, test_labels = sklearn.model_selection.train_test_split(inputs_list, labels_list, test_size=0.25, random_state=0)
 
     tokenizer = Tokenizer(num_words = vocab_size, oov_token=oov_tok)
-    tokenizer.fit_on_texts(inputs_train)
+    
+    tokenizer.fit_on_texts(train_inputs)
     word_index = tokenizer.word_index
     words_dict = dict(list(word_index.items())[0:10])
-    print(words_dict)
 
-    train_sequences = tokenizer.texts_to_sequences(inputs_train)
-    print(train_sequences[10])
-    print(inputs_list[10])
+    train_sequences = tokenizer.texts_to_sequences(train_inputs)
+
+    train_padded = pad_sequences(train_sequences, maxlen=max_length, padding=padding_type, truncating=trunc_type)
+    
+    # max = 0
+    # for seq in train_sequences:
+    #     if len(seq) > max:
+    #         max = len(seq)
+    # print(max)
+
+    test_sequences = tokenizer.texts_to_sequences(test_inputs)
+    test_padded = pad_sequences(test_sequences, maxlen=max_length, padding=padding_type, truncating=trunc_type)
 
 
-    print('Train size: ', len(inputs_train))
-    print('Test size: ', len(inputs_test))
-    print('Total:', len(inputs_train) + len(inputs_test))
+    # print('Train size: ', len(train_inputs))
+    # print('Test size: ', len(test_inputs))
+    # print('Total:', len(train_inputs) + len(test_inputs))
 
-    return inputs_train, inputs_test, labels_train, labels_test
+    return train_inputs, test_inputs, train_labels, test_labels
 
