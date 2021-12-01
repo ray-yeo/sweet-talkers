@@ -27,9 +27,10 @@ def main():
     train_inputs, test_inputs, train_labels, test_labels = get_data("jsonoutput.csv")
     
     model = tf.keras.Sequential([
-        # Add an Embedding layer expecting input vocab of size 5000, and output embedding di
+        # Add an Embedding layer expecting input vocab of size 5000, and output embedding dim
         tf.keras.layers.Embedding(vocab_size, embedding_dim),
-        tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(embedding_dim)),
+        # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(embedding_dim)),
+        tf.keras.layers.LSTM(embedding_dim, return_sequences=True, return_state = True),
         # tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(32)),
         # use ReLU in place of tanh function since they are very good alternatives of each o
         tf.keras.layers.Dense(embedding_dim, activation='relu'),
