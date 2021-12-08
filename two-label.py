@@ -8,25 +8,16 @@ print("TensorFlow Version: ", tf.__version__)
 
 from preprocess import get_data
 
-
-def train():
-    pass
-
-
-def test():
-    pass
-
-
 def main():
-    X_train, X_test, y_train, y_test = get_data("jsonoutput.csv")
-    model = "https://tfhub.dev/google/nnlm-en-dim50/2"
-    hub_layer = hub.KerasLayer(model, input_shape=[], dtype=tf.string, trainable=True)
-    hub_layer(X_train[:3])
+    X_train, X_test, y_train, y_test = get_data("jsonoutput.csv", True)
+    hub_layer = hub.KerasLayer("https://tfhub.dev/google/nnlm-en-dim50/2", input_shape=[], dtype=tf.string, trainable=True)
 
-    model = tf.keras.Sequential()
-    model.add(hub_layer)
-    model.add(tf.keras.layers.Dense(16, activation='relu'))
-    model.add(tf.keras.layers.Dense(1))
+    # create our two-label model
+    model = tf.keras.Sequential([
+        hub_layer,
+        tf.keras.layers.Dense(16, activation='relu'),
+        tf.keras.layers.Dense(1)
+    ])
 
     model.summary()
 
@@ -62,18 +53,12 @@ def main():
 
     epochs = range(1, len(acc) + 1)
 
-    # "bo" is for "blue dot"
-    plt.plot(epochs, loss, 'bo', label='Training loss')
-    # b is for "solid blue line"
-    plt.plot(epochs, val_loss, 'b', label='Validation loss')
-    plt.title('Training and validation loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-
-    plt.show()
-
-    plt.clf()   # clear figure
+    # plt.plot(epochs, loss, 'bo', label='Training loss')
+    # plt.plot(epochs, val_loss, 'b', label='Validation loss')
+    # plt.title('Training and validation loss')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Loss')
+    # plt.legend()
 
     plt.plot(epochs, acc, 'bo', label='Training acc')
     plt.plot(epochs, val_acc, 'b', label='Validation acc')
