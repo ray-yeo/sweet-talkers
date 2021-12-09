@@ -1,7 +1,8 @@
 import numpy as np
-
+import random
 import tensorflow as tf
 import tensorflow_hub as hub
+from tensorflow.keras.models import Model
 
 import matplotlib.pyplot as plt
 
@@ -21,26 +22,19 @@ def plot_graphs(history, string):
 
 def main():
     train_inputs, test_inputs, train_labels, test_labels = get_data("jsonoutput.csv", False)
-    train_inputs = np.array(train_inputs)
-    test_inputs = np.array(test_inputs)
-    train_labels = np.array(train_labels)
-    test_labels = np.array(test_labels)
-
-
-    print(train_inputs.shape)
-    print(test_inputs.shape)
-    print(train_labels.shape)
-    print(test_labels.shape)
-
-    callback = tf.keras.callbacks.EarlyStopping(monitor = "loss", patience = 2, restore_best_weights = True)
+    # train_inputs = np.array(train_inputs)
+    # test_inputs = np.array(test_inputs)
+    # train_labels = np.array(train_labels)
+    # test_labels = np.array(test_labels)
+    correct = 0
+    total = 0
+    for ind, input in enumerate(test_inputs):
+        rand = random.randint(1,3)
+        if (rand == test_labels[ind]):
+            correct += 1
+        total += 1
     
-    model = (train_inputs, train_inputs)
-    model.summary()
-
-    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-    history = model.fit(train_inputs, train_labels, epochs=10, validation_data=(test_inputs, test_labels), callbacks = [callback], verbose=2)
-    plot_graphs(history, "accuracy") 
-    plot_graphs(history, "loss") 
+    print("Dummy Accuracy: ", correct/total)
 
 if __name__ == '__main__':
     main()

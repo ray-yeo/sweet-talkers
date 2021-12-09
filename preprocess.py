@@ -16,14 +16,13 @@ max_length = 437
 trunc_type = 'post'
 padding_type = 'post'
 oov_tok = '<OOV>'
-testing_portion = .1
+testing_portion = .2
 
 """
 split csv file into inputs_list and labels_list
 """
 def roundToNearestInt(x):
-    rounded = (round(float(x)))
-    # print(x, "->", rounded)
+    rounded = (round(float(x))) - 2
     return rounded
 
 def twoLabel(x):
@@ -31,6 +30,16 @@ def twoLabel(x):
         return 1
     else:
         return 0
+
+def tokenize(review):
+    print(review)
+    tokenizer = Tokenizer(num_words = vocab_size, oov_token=oov_tok)
+        
+    tokenizer.fit_on_texts([review])
+
+    train_sequences = tokenizer.texts_to_sequences([review])
+    train_padded = pad_sequences(train_sequences, maxlen=max_length, padding=padding_type, truncating=trunc_type)
+    return train_padded
 
 def get_data(filename = 'jsonoutput.csv', two_label = True):
 
@@ -76,7 +85,7 @@ def get_data(filename = 'jsonoutput.csv', two_label = True):
         for row in rows:
             inputs = row[5]
             labels = row[4]
-            if roundToNearestInt(labels) == 0 or roundToNearestInt(labels) == 1 or roundToNearestInt(labels) == 2:
+            if roundToNearestInt(labels) < 1:
                 continue
             for word in STOPWORDS:
                 token = ' ' + word + ' '
@@ -107,7 +116,9 @@ def get_data(filename = 'jsonoutput.csv', two_label = True):
         new_inputs_list = []
         new_labels_list = []
 
-        # after this, {4: 219, 5: 219, 3: 219, 2: 6}
+        # before: {4: 2733, 5: 1250, 3: 219, 2: 6}
+
+        # after this, {4: 219, 5: 219, 3: 219}
         counter_4 = 0
         counter_5 = 0
         for i in range(len(inputs_list)):
